@@ -5,20 +5,13 @@
 //  Created by Surya Rayala on 2/24/26.
 //
 
-
-//
-//  ContentView.swift
-//  RickAndMortySwiftUI
-//
-//  Created by Surya Rayala on 2/24/26.
-//
-
 import SwiftUI
 
 struct ContentView: View {
     
     // Create the ViewModel
     @State private var viewModel = CharacterViewModel()
+    @State private var hasLoadedInitialData = false
     
     var body: some View {
         NavigationStack {
@@ -29,26 +22,10 @@ struct ContentView: View {
                     ProgressView("Searching...")
                         .padding()
                     Spacer()
-                    
-                } else if let errorMessage = viewModel.errorMessage {
-                    // Show error message
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding()
-                    Spacer()
-                    
-                } else if viewModel.characters.isEmpty && !viewModel.searchText.isEmpty {
-                    // No results found
-                    Text("No characters found")
-                        .foregroundColor(.gray)
-                        .padding()
-                    Spacer()
-                    
                 } else {
                     // Show the list of characters
                     List(viewModel.characters) { character in
                         NavigationLink {
-                            // We'll create this detail view next
                             CharacterDetailView(character: character)
                         } label: {
                             CharacterRow(character: character)
@@ -63,6 +40,16 @@ struct ContentView: View {
                 // Search after each keystroke
                 Task {
                     await viewModel.searchCharacters()
+                }
+            }
+            .onAppear {
+                // Only load default data on first launch
+                if !hasLoadedInitialData {
+                    hasLoadedInitialData = true
+                    viewModel.searchText = "rick"
+                    Task {
+                        await viewModel.searchCharacters()
+                    }
                 }
             }
         }

@@ -10,16 +10,14 @@ import Foundation
 // This class handles all API calls
 class NetworkManager {
     
-    // This function searches for characters by name
-    func searchCharacters(name: String) async throws -> [Character] {
-        
-        // If the search is empty, return empty array
-        guard !name.isEmpty else {
-            return []
-        }
+    // This function fetches characters from the API
+    func fetchCharacters(name: String) async throws -> CharacterResponse {
         
         // Build the URL with the search name
-        let urlString = "https://rickandmortyapi.com/api/character/?name=\(name)"
+        let urlString = Server.urlString.rawValue + "\(name)"
+        
+        // Print the URL to debug
+        print("URL: \(urlString)")
         
         // Make sure the URL is valid
         guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else {
@@ -32,7 +30,10 @@ class NetworkManager {
         // Decode the JSON into our CharacterResponse model
         let response = try JSONDecoder().decode(CharacterResponse.self, from: data)
         
-        // Return just the characters array
-        return response.results
+        // Print how many results we got
+        print("Found \(response.results.count) characters")
+        
+        // Return the full response
+        return response
     }
 }

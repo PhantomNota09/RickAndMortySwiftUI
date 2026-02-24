@@ -10,27 +10,100 @@ import XCTest
 
 final class RickAndMortySwiftUITests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    // Test 1: Check if Character model can be decoded from JSON
+    func testCharacterDecoding() throws {
+        let json = """
+        {
+            "id": 1,
+            "name": "Rick Sanchez",
+            "status": "Alive",
+            "species": "Human",
+            "type": "",
+            "gender": "Male",
+            "origin": {
+                "name": "Earth (C-137)",
+                "url": "https://rickandmortyapi.com/api/location/1"
+            },
+            "location": {
+                "name": "Citadel of Ricks",
+                "url": "https://rickandmortyapi.com/api/location/3"
+            },
+            "image": "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+            "episode": ["https://rickandmortyapi.com/api/episode/1"],
+            "url": "https://rickandmortyapi.com/api/character/1",
+            "created": "2017-11-04T18:48:46.250Z"
         }
+        """
+        
+        let data = json.data(using: .utf8)!
+        let character = try JSONDecoder().decode(Character.self, from: data)
+        
+        XCTAssertEqual(character.id, 1)
+        XCTAssertEqual(character.name, "Rick Sanchez")
+        XCTAssertEqual(character.status, "Alive")
+        XCTAssertEqual(character.species, "Human")
+        XCTAssertEqual(character.origin.name, "Earth (C-137)")
     }
-
+    
+    // Test 2: Test that Character is Identifiable
+    func testCharacterIsIdentifiable() throws {
+        let json = """
+        {
+            "id": 42,
+            "name": "Test Character",
+            "status": "Alive",
+            "species": "Human",
+            "type": "",
+            "gender": "Male",
+            "origin": {"name": "Earth", "url": ""},
+            "location": {"name": "Earth", "url": ""},
+            "image": "test.jpeg",
+            "episode": [],
+            "url": "",
+            "created": "2017-11-04T18:48:46.250Z"
+        }
+        """
+        
+        let data = json.data(using: .utf8)!
+        let character = try JSONDecoder().decode(Character.self, from: data)
+        
+        XCTAssertEqual(character.id, 42)
+    }
+    
+    // Test 3: Test CharacterResponse decoding
+    func testCharacterResponseDecoding() throws {
+        let json = """
+        {
+            "info": {
+                "count": 1,
+                "pages": 1,
+                "next": null,
+                "prev": null
+            },
+            "results": [
+                {
+                    "id": 1,
+                    "name": "Rick Sanchez",
+                    "status": "Alive",
+                    "species": "Human",
+                    "type": "",
+                    "gender": "Male",
+                    "origin": {"name": "Earth", "url": ""},
+                    "location": {"name": "Earth", "url": ""},
+                    "image": "test.jpeg",
+                    "episode": [],
+                    "url": "",
+                    "created": "2017-11-04T18:48:46.250Z"
+                }
+            ]
+        }
+        """
+        
+        let data = json.data(using: .utf8)!
+        let response = try JSONDecoder().decode(CharacterResponse.self, from: data)
+        
+        XCTAssertEqual(response.info.count, 1)
+        XCTAssertEqual(response.results.count, 1)
+        XCTAssertEqual(response.results.first?.name, "Rick Sanchez")
+    }
 }
