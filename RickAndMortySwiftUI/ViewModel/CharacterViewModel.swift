@@ -32,12 +32,16 @@ class CharacterViewModel: CharacterViewModelProtocol {
             return
         }
         
+        // Convert search text to lowercase before calling API
+        let lowercasedSearch = searchText.lowercased()
+        
         // Start loading
         isLoading = true
         clearError()
         
-        // Convert search text to lowercase before calling API
-        let lowercasedSearch = searchText.lowercased()
+        // sleep(2) - will block the main thread which prevents SwiftUI from re-rendering the UI to the load indicator
+        // Add a delay to see the loading state (optional)
+        try? await Task.sleep(nanoseconds: 2_000_000_000)
         
         // Call NetworkManager to fetch data
         let response = await networkManager.fetchCharacters(name: lowercasedSearch)
