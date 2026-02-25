@@ -7,12 +7,18 @@
 
 import Foundation
 
+protocol CharacterViewModelProtocol: AnyObject {
+    
+    func searchCharacters() async
+}
+
 @Observable
-class CharacterViewModel {
+class CharacterViewModel: CharacterViewModelProtocol {
     
     var characters: [Character] = []
     var searchText: String = ""
     var isLoading: Bool = false
+    var hasError: Bool = false
     var errorMessage: String?
     
     // Create an instance of NetworkManager
@@ -26,9 +32,9 @@ class CharacterViewModel {
             return
         }
         
-        // Show loading indicator
+        // Start loading
         isLoading = true
-        errorMessage = nil
+        clearError()
         
         // Convert search text to lowercase before calling API
         let lowercasedSearch = searchText.lowercased()
@@ -36,16 +42,23 @@ class CharacterViewModel {
         // Call NetworkManager to fetch data
         let response = await networkManager.fetchCharacters(name: lowercasedSearch)
         
+        // Stop loading
+        isLoading = false
+        
         // Handle the different APIError cases
         switch response {
         case .success(let characterList):
             characters = characterList
         case .invalidURL, .empty, .failed:
-            errorMessage = response.message
             characters = []
+            hasError = true
+            errorMessage = response.message
         }
-        
-        // Hides loading indicator
-        isLoading = false
+    }
+    
+    // Clear error state
+    func clearError() {
+        hasError = false
+        errorMessage = nil
     }
 }

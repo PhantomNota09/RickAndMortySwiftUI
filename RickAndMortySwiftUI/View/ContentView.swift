@@ -18,10 +18,15 @@ struct ContentView: View {
             VStack {
                 // The list of characters
                 if viewModel.isLoading {
-                    // Show loading indicator
-                    ProgressView("Searching...")
-                        .padding()
-                    Spacer()
+                    // Show loading indicator with "Please wait" message
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                        Text("Please wait")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     // Show the list of characters
                     List(viewModel.characters) { character in
@@ -37,9 +42,18 @@ struct ContentView: View {
             .navigationTitle("Rick and Morty")
             .searchable(text: $viewModel.searchText, prompt: "Search characters...")
             .onChange(of: viewModel.searchText) { oldValue, newValue in
-                // Search after each keystroke
+                // Trigger search when text changes
                 Task {
                     await viewModel.searchCharacters()
+                }
+            }
+            .alert("Error", isPresented: $viewModel.hasError) {
+                Button("OK") {
+                    viewModel.clearError()
+                }
+            } message: {
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
                 }
             }
             .onAppear {

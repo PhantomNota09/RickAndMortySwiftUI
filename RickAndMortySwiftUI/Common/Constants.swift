@@ -18,11 +18,12 @@ enum APIError {
 
     var message: String {
         switch self {
-        case .invalidURL: return "Invalid url, Please try again"
+        case .invalidURL: 
+            return "Invalid URL. Please try again."
         case .empty:
-            return "No news available."
+            return "No characters found."
         case .failed:
-            return "Failed to load news. Please try again."
+            return "Failed to load data. Please try again."
         case .success:
             return ""
         }
