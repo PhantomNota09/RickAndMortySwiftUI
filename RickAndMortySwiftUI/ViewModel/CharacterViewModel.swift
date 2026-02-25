@@ -30,18 +30,19 @@ class CharacterViewModel {
         isLoading = true
         errorMessage = nil
         
-        do {
-            // Convert search text to lowercase before calling API
-            let lowercasedSearch = searchText.lowercased()
-            
-            // Call NetworkManager to fetch data
-            let response = try await networkManager.fetchCharacters(name: lowercasedSearch)
-            
-            // Extract characters from response
-            characters = response.results
-            
-        } catch {
-            print("Error: \(error)")
+        // Convert search text to lowercase before calling API
+        let lowercasedSearch = searchText.lowercased()
+        
+        // Call NetworkManager to fetch data
+        let response = await networkManager.fetchCharacters(name: lowercasedSearch)
+        
+        // Handle the different APIError cases
+        switch response {
+        case .success(let characterList):
+            characters = characterList
+        case .invalidURL, .empty, .failed:
+            errorMessage = response.message
+            characters = []
         }
         
         // Hides loading indicator
